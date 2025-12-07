@@ -1,4 +1,5 @@
 import random
+from statistics import stdev
 from typing import List, Tuple
 
 from App.task import Task
@@ -7,7 +8,8 @@ from App.solution import Solution
 
 def genetic(
         tasks: List[Task],
-        programmer_specs: List[Tuple[str, float]],
+        programmers_specs: List[Tuple[str, float]],
+        releases: List[int],
         init_strategy="random",
         population_size: int = 40,
         generations: int = 5,
@@ -16,7 +18,24 @@ def genetic(
         tournament_size: int = 3,
 ) -> Solution:
     def fitness_function(individual: Solution, debug: bool = False) -> float:
-        pass
+        fitness = 0
+        time_lefts = []
+        for prog in individual.programmers:
+            priority_per_release, time_left, overflowing = prog.evaluate_work_plan(tasks, releases)
+            if overflowing:
+                fitness -= 1000  # TODO: not sure what to do when work plan overflows
+            time_lefts.append(time_left)
+            num_of_releases = len(priority_per_release)
+            for i in range(num_of_releases):
+                fitness += priority_per_release[i] * (num_of_releases - i) # TODO: might need tuning
+
+        if debug:
+            print("fitness without penalty:", fitness, "time_lefts:", time_lefts, "stdev penalty:", stdev(time_lefts))
+
+        # penalize unbalanced workloads
+        fitness -= stdev(time_lefts)  # TODO: might need tuning
+        return fitness
+
 
     def select() -> int:
         selected = random.randrange(0, len(population))
@@ -104,7 +123,7 @@ def genetic(
     best = None
 
     for _ in range(population_size):
-        individual = Solution().initialize(programmer_specs, tasks, init_strategy)
+        individual = Solution().initialize(programmers_specs, tasks, init_strategy)
         population.append(individual)
         fit = fitness_function(individual)
         fitness.append(fit)
@@ -118,9 +137,11 @@ def genetic(
         for _ in range(population_size):
             parent1 = select()
             parent2 = select()
-            child = crossover(parent1, parent2)
-            child = mutate(child)
-            new_population.append(child)
+            child1, child2 = crossover(parent1, parent2)
+            child1 = mutate(child1)
+            child2 = mutate(child2)
+            new_population.append(child1)
+            new_population.append(child2)
         population = new_population
 
         for i in range(population_size):
@@ -128,7 +149,6 @@ def genetic(
             if fitness[i] > best_fitness:
                 best_fitness = fitness[i]
                 best = population[i]
-
                 # DEBUG
                 print(gen, "fitness:", fitness_function(best, True))
 
