@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 
-from App.release import Release
+from .release import Release
 
 NUMBER_OF_HOURS_IN_A_WORKING_DAY = 8
 

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from programmer import Programmer
-from task import Task
+from .task import Task
 
 
 @dataclass
