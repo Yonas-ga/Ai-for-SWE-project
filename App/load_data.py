@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from programmer import Programmer
 from task import Task
@@ -12,5 +12,6 @@ def load_tasks_from_file(file_path: str) -> List[Task]:
 def load_releases_from_file(file_path: str) -> List[Release]:
     pass
 
-def load_programmers_from_file(file_path: str) -> List[Programmer]:
+def load_programmers_specs_from_file(file_path: str) -> List[Tuple[str, float]]:
+    # loads name and efficiency per programmer
     pass

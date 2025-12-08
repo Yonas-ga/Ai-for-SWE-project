@@ -2,6 +2,7 @@ import random
 from statistics import stdev
 from typing import List, Tuple
 
+from App.release import Release
 from App.task import Task
 from App.solution import Solution
 
@@ -9,7 +10,7 @@ from App.solution import Solution
 def genetic(
         tasks: List[Task],
         programmers_specs: List[Tuple[str, float]],
-        releases: List[int],
+        releases: List[Release],
         init_strategy="random",
         population_size: int = 40,
         generations: int = 5,

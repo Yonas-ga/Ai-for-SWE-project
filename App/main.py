@@ -13,7 +13,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     tasks = load_tasks_from_file(args.tasks_file)
-    programmers = load_programmers_from_file(args.programmers_file)
+    programmers = load_programmers_specs_from_file(args.programmers_file)
     releases = load_releases_from_file(args.releases_file)
 
     match args.algorithm:

@@ -1,6 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import List, Any
+from typing import List
+
+from App.release import Release
 
 NUMBER_OF_HOURS_IN_A_WORKING_DAY = 8
 
@@ -30,13 +32,13 @@ class Programmer:
         else:
             return self.work_plan[-1]
 
-    def evaluate_work_plan(self, tasks, releases) -> tuple[List[int], float, bool]:
+    def evaluate_work_plan(self, tasks, releases) -> tuple[List[Release], float, bool]:
         priority_per_release = []
         time_left = 0.0
         plan_index = 0
         for release in releases:
             release_priority = 0
-            time_left += release * NUMBER_OF_HOURS_IN_A_WORKING_DAY
+            time_left += release.working_days * NUMBER_OF_HOURS_IN_A_WORKING_DAY
             while plan_index < len(self.work_plan):
                task = tasks[self.work_plan[plan_index]]
                if time_left - (task.cost / self.efficiency) >= 0:
