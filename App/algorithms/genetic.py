@@ -135,7 +135,7 @@ def genetic(
     # Evolve population
     for gen in range(generations):
         new_population = []
-        for _ in range(population_size):
+        while len(new_population) < population_size:
             parent1 = select()
             parent2 = select()
             child1, child2 = crossover(parent1, parent2)
