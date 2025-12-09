@@ -2,9 +2,9 @@ import random
 from statistics import stdev
 from typing import List, Tuple
 
-from App.release import Release
-from App.task import Task
-from App.solution import Solution
+from release import Release
+from task import Task
+from solution import Solution
 
 
 def genetic(

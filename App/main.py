@@ -1,7 +1,7 @@
 import argparse
 
-from App.load_data import *
-from App.algorithms.genetic import genetic
+from load_data import *
+from algorithms.genetic import genetic
 
 
 if __name__ == '__main__':
