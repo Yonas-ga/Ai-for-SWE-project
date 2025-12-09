@@ -2,7 +2,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 
-from .release import Release
 
 NUMBER_OF_HOURS_IN_A_WORKING_DAY = 8
 
@@ -32,7 +31,7 @@ class Programmer:
         else:
             return self.work_plan[-1]
 
-    def evaluate_work_plan(self, tasks, releases) -> tuple[List[Release], float, bool]:
+    def evaluate_work_plan(self, tasks, releases) -> tuple[List[int], float, bool]:
         priority_per_release = []
         time_left = 0.0
         plan_index = 0

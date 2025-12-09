@@ -3,12 +3,13 @@ import argparse
 from App.load_data import *
 from App.algorithms.genetic import genetic
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--algorithm', type=str, required=False, default='genetic')
-    parser.add_argument('-t', '--tasks_file', type=str, required=False, default='')
-    parser.add_argument('-r', '--releases_file', type=str, required=False, default='')
-    parser.add_argument('-p', '--programmers_file', type=str, required=False, default='')
+    parser.add_argument('-t', '--tasks_file', type=str, required=False, default='data/ASF Jira 2025-12-08T08_13_21+0000.csv')
+    parser.add_argument('-r', '--releases_file', type=str, required=False, default='data/sample_releases.csv')
+    parser.add_argument('-p', '--programmers_file', type=str, required=False, default='data/sample_programmers.csv')
 
     args = parser.parse_args()
 

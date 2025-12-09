@@ -67,12 +67,13 @@ def load_programmers_specs_from_file(file_path: str) -> List[Tuple[str, float]]:
             prog.append((name, efficiency))
     return prog
 
+
+#TODO: remove debug prints
+
 tasks = load_tasks_from_file("data/ASF Jira 2025-12-08T08_13_21+0000.csv")
 programmers = load_programmers_specs_from_file("data/sample_programmers.csv")
 releases = load_releases_from_file("data/sample_releases.csv")
 
-
-#TODO: remove debug prints
 print("Loaded tasks:", len(tasks))
 total_cost = sum(t.cost for t in tasks)
 print("Total cost:", total_cost)
