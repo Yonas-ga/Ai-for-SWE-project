@@ -6,6 +6,8 @@ from App.release import Release
 from App.task import Task
 from App.solution import Solution
 
+DEPENDENCY_PENALTY = 500
+
 
 def hill_climbing(
         tasks: List[Task],
@@ -39,7 +41,6 @@ def hill_climbing(
                 fitness += priority_per_release[i] * (2 ** (num_of_releases - i))
 
         # dependency penalty
-        DEPENDENCY_PENALTY = 50
         dep_violations = 0
         for t in tasks:
             t_release = global_task_to_release.get(t.id, None)
@@ -70,7 +71,6 @@ def hill_climbing(
         return fitness
 
     def random_swap_neighbor(individual: Solution) -> Solution:
-        """Create neighbour by swapping two tasks inside one programmer."""
         neighbour = individual.clone()
         # choose programmer with at least 2 tasks
         candidates = [p for p in neighbour.programmers if len(p.work_plan) >= 2]
@@ -87,7 +87,6 @@ def hill_climbing(
         return neighbour
 
     def random_move_neighbor(individual: Solution) -> Solution:
-        """Create neighbour by moving one task from one programmer to another."""
         neighbour = individual.clone()
         # choose source programmer with at least 1 task
         src_candidates = [p for p in neighbour.programmers if len(p.work_plan) >= 1]
@@ -102,10 +101,6 @@ def hill_climbing(
         task_id = prog1.work_plan.pop(task_idx)
         insert_idx = random.randrange(len(prog2.work_plan) + 1)
         prog2.work_plan.insert(insert_idx, task_id)
-
-        # safety: permutation must stay the same
-        if sorted(neighbour.flatten()) != sorted(individual.flatten()):
-            raise ValueError("Neighbour (move) lost or duplicated tasks.")
         return neighbour
 
     # --- Initialization: start from one solution (same as GA init) ---
@@ -152,6 +147,7 @@ def hill_climbing(
             print(f"HC stopped at iter {it}: local optimum fitness = {round(current_fitness, 2)}")
             break
 
+    for t in best.programmers:
+        t.print_work_plan(tasks, releases)
     print("HC best fitness:", round(best_fitness, 2))
-    fitness_function(best, debug=True)
     return best
