@@ -18,6 +18,8 @@ class Solution:
 
         #TODO: maybe try more strategies for initialization
         match init_strategy:
+            case "empty":
+                return self
             case "random":
                 random.shuffle(tasks)
             case "priority_cost":
