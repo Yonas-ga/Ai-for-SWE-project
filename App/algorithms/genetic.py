@@ -172,9 +172,9 @@ def genetic(
                 print(gen, "fitness:", round(best_fitness,2))
 
     # DEBUG
-    #for t in best.programmers:
-        #t.print_work_plan(tasks, releases)
+    for t in best.programmers:
+        t.print_work_plan(tasks, releases)
 
-    fitness_function(best, True)
+    # fitness_function(best, True)
     print(round(best_fitness,2))
     return best
