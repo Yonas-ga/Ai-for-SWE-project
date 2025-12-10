@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
-from .task import Task
-from .release import Release
+from App.task import Task
+from App.release import Release
 
 import csv
 from datetime import datetime
