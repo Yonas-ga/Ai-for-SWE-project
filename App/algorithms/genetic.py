@@ -2,9 +2,9 @@ import random
 from statistics import stdev
 from typing import List, Tuple
 
-from release import Release
-from task import Task
-from solution import Solution
+from App.release import Release
+from App.task import Task
+from App.solution import Solution
 
 
 def genetic(
@@ -13,7 +13,7 @@ def genetic(
         releases: List[Release],
         init_strategy="random",
         population_size: int = 40,
-        generations: int = 5,
+        generations: int = 10,
         crossover_rate: float = 0.6,
         mutation_rate: float = 0.7,
         tournament_size: int = 3,
@@ -34,7 +34,7 @@ def genetic(
             print("fitness without penalty:", fitness, "time_lefts:", time_lefts, "stdev penalty:", stdev(time_lefts))
 
         # penalize unbalanced workloads
-        fitness -= stdev(time_lefts)  # TODO: might need tuning
+        fitness -= 0.005 * stdev(time_lefts)  # TODO: might need tuning
         return fitness
 
 
@@ -46,7 +46,12 @@ def genetic(
                 selected = candidate
         return selected
 
-    from typing import Tuple
+    def apply_swap(indiv, src_list, dst_list):
+        for prog in indiv.programmers:
+            for i in range(len(prog.work_plan)):
+                for j in range(len(src_list)):
+                    if prog.work_plan[i] == src_list[j]:
+                        prog.work_plan[i] = dst_list[j]
 
     def crossover(p1: int, p2: int) -> Tuple[Solution, Solution]:
         if random.random() > crossover_rate:
@@ -66,44 +71,37 @@ def genetic(
         start2 = random.randint(0, len(prog2.work_plan) - seg_len)
         end1 = start1 + seg_len
         end2 = start2 + seg_len
-
-        # get segments and swap them
+        # get segments
         segment1 = prog1.work_plan[start1:end1]
         segment2 = prog2.work_plan[start2:end2]
+
+        # prepare swap mapping
+        swap1 = []
+        swap2 = segment2.copy()
+        for task in segment1:
+            if task not in swap2:
+                swap1.append(task)
+            else:
+                swap2.remove(task)
+        apply_swap(child1, swap2, swap1)
+        apply_swap(child2, swap1, swap2)
+
+        # finally, swap the segments
         prog1.work_plan[start1:end1] = segment2
         prog2.work_plan[start2:end2] = segment1
 
-        # fix duplicates / missing tasks
-        swap = [[], []]
-        for task in segment1:
-            if task not in segment2:
-                swap[0].append(task)
-            else:
-                segment2.remove(task)
-        swap[1] = segment2
-
-        # TODO: replace with function
-        for prog in child1.programmers:
-            for i in range(len(prog.work_plan)):
-                for task in swap[1]:
-                    if prog.work_plan[i] == task:
-                        prog.work_plan[i] = swap[0]
-
-        for prog in child2.programmers:
-            for i in range(len(prog.work_plan)):
-                for task in swap[0]:
-                    if prog.work_plan[i] == task:
-                        prog.work_plan[i] = swap[1]
-
         # TODO: safety check, remove later
-        if sorted(child1.flatten) != sorted(child2.flatten):
-            raise ValueError("Parents must contain the same multiset of tasks for crossover.")
+        parent_tasks = sorted(population[p1].flatten())
+        if sorted(child1.flatten()) != parent_tasks:
+            raise ValueError("Child1 lost or duplicated tasks during crossover.")
+        if sorted(child2.flatten()) != parent_tasks:
+            raise ValueError("Child2 lost or duplicated tasks during crossover.")
         return child1, child2
 
     def mutate(individual: Solution) -> Solution:
         if random.random() > mutation_rate:
             return individual
-
+        beckup = individual.clone()
         if random.random() > 0.5:
             # swap two tasks in a programmer's work plan
             prog = random.choice(individual.programmers)
@@ -115,6 +113,9 @@ def genetic(
             prog1, prog2 = random.sample(individual.programmers, 2)
             task1 = prog1.work_plan.pop(random.randrange(len(prog1.work_plan)))
             prog2.work_plan.insert(random.randrange(len(prog2.work_plan)), task1)
+
+        if sorted(individual.flatten()) != sorted(beckup.flatten()):
+            raise ValueError("Child1 lost or duplicated tasks during mutate.")
         return individual
 
     # Initialize
@@ -157,4 +158,8 @@ def genetic(
     print(best)
     fitness_function(best, True)
 
+    print("total cost:",  sum(t.cost for t in tasks), "total priority:", sum(t.priority for t in tasks))
+    print("best fitness:", best_fitness)
+    for t in tasks:
+        print(t)
     return best

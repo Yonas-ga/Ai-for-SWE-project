@@ -4,6 +4,7 @@ from typing import List
 
 
 NUMBER_OF_HOURS_IN_A_WORKING_DAY = 8
+MIN_PRIORITY = 9
 
 @dataclass
 class Programmer:
@@ -42,10 +43,11 @@ class Programmer:
                task = tasks[self.work_plan[plan_index]]
                if time_left - (task.cost / self.efficiency) >= 0:
                    time_left -= task.cost / self.efficiency
-                   release_priority += task.priority
+                   release_priority += MIN_PRIORITY - task.priority
                    plan_index += 1
                else:
                    break
+            priority_per_release.append(release_priority)
 
         overflowing = plan_index != len(self.work_plan)
 

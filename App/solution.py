@@ -4,8 +4,8 @@ import random
 from dataclasses import dataclass, field
 from typing import List
 
-from programmer import Programmer
-from task import Task
+from App.programmer import Programmer
+from App.task import Task
 
 
 @dataclass
@@ -44,7 +44,7 @@ class Solution:
         return Solution(programmers=new_programmers)
 
     def flatten(self) -> List[int]:
-        flat: List[int] = []
+        flat = []
         for p in self.programmers:
             flat.extend(p.work_plan)
         return flat

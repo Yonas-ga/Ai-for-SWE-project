@@ -69,21 +69,21 @@ def load_programmers_specs_from_file(file_path: str) -> List[Tuple[str, float]]:
 
 
 #TODO: remove debug prints
+if __name__ == "__main__":
+    tasks = load_tasks_from_file("data/ASF Jira 2025-12-08T08_13_21+0000.csv")
+    programmers = load_programmers_specs_from_file("data/sample_programmers.csv")
+    releases = load_releases_from_file("data/sample_releases.csv")
 
-tasks = load_tasks_from_file("data/ASF Jira 2025-12-08T08_13_21+0000.csv")
-programmers = load_programmers_specs_from_file("data/sample_programmers.csv")
-releases = load_releases_from_file("data/sample_releases.csv")
-
-print("Loaded tasks:", len(tasks))
-total_cost = sum(t.cost for t in tasks)
-print("Total cost:", total_cost)
-print("First task:", tasks[0])
-
-
-print("Loaded programmers:", len(programmers))
-print("First programmer:", programmers[0])
+    print("Loaded tasks:", len(tasks))
+    total_cost = sum(t.cost for t in tasks)
+    print("Total cost:", total_cost)
+    print("First task:", tasks[0])
 
 
-print("Loaded releases:", len(releases))
-print("First release:", releases[0])
+    print("Loaded programmers:", len(programmers))
+    print("First programmer:", programmers[0])
+
+
+    print("Loaded releases:", len(releases))
+    print("First release:", releases[0])
 
