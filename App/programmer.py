@@ -32,11 +32,12 @@ class Programmer:
         else:
             return self.work_plan[-1]
 
-    def evaluate_work_plan(self, tasks, releases) -> tuple[List[int], float, bool]:
+    def evaluate_work_plan(self, tasks, releases) -> tuple[List[int], float, bool, List[int]]:
         priority_per_release = []
         time_left = 0.0
         plan_index = 0
-        for release in releases:
+        task_to_release = {}
+        for i, release in enumerate(releases):
             release_priority = 0
             time_left += release.working_days * PROGRAMMING_HOURS_IN_WORK_DAY * 60
             while plan_index < len(self.work_plan):
@@ -44,13 +45,14 @@ class Programmer:
                 if time_left - (task.cost / self.efficiency) >= 0:
                     time_left -= task.cost / self.efficiency
                     release_priority += MIN_PRIORITY - task.priority
+                    task_to_release[task.id] = i
                     plan_index += 1
                 else:
                     break
             priority_per_release.append(release_priority)
 
         overflowing = plan_index != len(self.work_plan)
-        return priority_per_release, time_left, overflowing
+        return priority_per_release, time_left, overflowing, task_to_release
 
     def print_work_plan(self, tasks, releases) -> None:
         print("-----------------------------")
