@@ -9,13 +9,13 @@ class Task:
     Represents a task within the project.
 
     Attributes:
-        cost: Difficulty in hours.
+        cost: Time spent on this task in minutes.
         priority: priority 1-5 (1 = highest, 5 = lowest)
         dependencies: List of other tasks that must be completed before this task.
     """
     id: int
     name: str
-    cost: float
+    cost: int
     priority: int
     dependencies: List[Task]
 

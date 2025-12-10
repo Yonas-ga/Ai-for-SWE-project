@@ -19,7 +19,8 @@ if __name__ == '__main__':
 
     match args.algorithm:
         case 'genetic':
-            genetic(tasks[:10], programmers[:2], releases[:2])
+            genetic(tasks, programmers, releases)
+            #genetic(tasks[:50], programmers[:4], releases[:3])
         case _:
             raise ValueError(f'Unknown algorithm {args.algorithm}')
 

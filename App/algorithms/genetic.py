@@ -11,11 +11,11 @@ def genetic(
         tasks: List[Task],
         programmers_specs: List[Tuple[str, float]],
         releases: List[Release],
-        init_strategy="random",
-        population_size: int = 40,
-        generations: int = 10,
-        crossover_rate: float = 0.6,
-        mutation_rate: float = 0.7,
+        init_strategy="priority_cost",
+        population_size: int = 100,
+        generations: int = 60,
+        crossover_rate: float = 0.7,
+        mutation_rate: float = 0.4,
         tournament_size: int = 3,
 ) -> Solution:
     def fitness_function(individual: Solution, debug: bool = False) -> float:
@@ -24,17 +24,17 @@ def genetic(
         for prog in individual.programmers:
             priority_per_release, time_left, overflowing = prog.evaluate_work_plan(tasks, releases)
             if overflowing:
-                fitness -= 1000  # TODO: not sure what to do when work plan overflows
+                fitness -= 10000
             time_lefts.append(time_left)
             num_of_releases = len(priority_per_release)
             for i in range(num_of_releases):
-                fitness += priority_per_release[i] * (num_of_releases - i) # TODO: might need tuning
+                fitness += priority_per_release[i] * (2 ** (num_of_releases - i)) # TODO: might need tuning
 
         if debug:
-            print("fitness without penalty:", fitness, "time_lefts:", time_lefts, "stdev penalty:", stdev(time_lefts))
+            print("fitness without penalty:", fitness, "stdev penalty:", round(stdev(time_lefts)))
 
         # penalize unbalanced workloads
-        fitness -= 0.005 * stdev(time_lefts)  # TODO: might need tuning
+        fitness -= stdev(time_lefts)  # TODO: might need tuning
         return fitness
 
 
@@ -125,7 +125,7 @@ def genetic(
     best = None
 
     for _ in range(population_size):
-        individual = Solution().initialize(programmers_specs, tasks, init_strategy)
+        individual = Solution().initialize(programmers_specs, tasks.copy(), init_strategy)
         population.append(individual)
         fit = fitness_function(individual)
         fitness.append(fit)
@@ -150,16 +150,14 @@ def genetic(
             fitness[i] = fitness_function(population[i])
             if fitness[i] > best_fitness:
                 best_fitness = fitness[i]
-                best = population[i]
+                best = population[i].clone()
                 # DEBUG
-                print(gen, "fitness:", fitness_function(best, True))
+                print(gen, "fitness:", round(best_fitness,2))
 
     # DEBUG
-    print(best)
-    fitness_function(best, True)
+    #for t in best.programmers:
+        #t.print_work_plan(tasks, releases)
 
-    print("total cost:",  sum(t.cost for t in tasks), "total priority:", sum(t.priority for t in tasks))
-    print("best fitness:", best_fitness)
-    for t in tasks:
-        print(t)
+    fitness_function(best, True)
+    print(round(best_fitness,2))
     return best

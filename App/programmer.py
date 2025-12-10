@@ -2,9 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 
-
-NUMBER_OF_HOURS_IN_A_WORKING_DAY = 8
+PROGRAMMING_HOURS_IN_WORK_DAY = 6
 MIN_PRIORITY = 9
+
 
 @dataclass
 class Programmer:
@@ -38,20 +38,36 @@ class Programmer:
         plan_index = 0
         for release in releases:
             release_priority = 0
-            time_left += release.working_days * NUMBER_OF_HOURS_IN_A_WORKING_DAY
+            time_left += release.working_days * PROGRAMMING_HOURS_IN_WORK_DAY * 60
             while plan_index < len(self.work_plan):
-               task = tasks[self.work_plan[plan_index]]
-               if time_left - (task.cost / self.efficiency) >= 0:
-                   time_left -= task.cost / self.efficiency
-                   release_priority += MIN_PRIORITY - task.priority
-                   plan_index += 1
-               else:
-                   break
+                task = tasks[self.work_plan[plan_index]]
+                if time_left - (task.cost / self.efficiency) >= 0:
+                    time_left -= task.cost / self.efficiency
+                    release_priority += MIN_PRIORITY - task.priority
+                    plan_index += 1
+                else:
+                    break
             priority_per_release.append(release_priority)
 
         overflowing = plan_index != len(self.work_plan)
-
         return priority_per_release, time_left, overflowing
 
+    def print_work_plan(self, tasks, releases) -> None:
+        print("-----------------------------")
+        print(f"Programmer: {self.name}, Efficiency: {self.efficiency}, Work Plan:")
+        time_left = 0.0
+        plan_index = 0
+        for release in releases:
+            time_left += release.working_days * PROGRAMMING_HOURS_IN_WORK_DAY * 60
+            print(f" Release from {release.start_day} to {release.end_date}, "
+                  f"Working mins: {release.working_days* PROGRAMMING_HOURS_IN_WORK_DAY*60}")
+            while plan_index < len(self.work_plan):
+                task = tasks[self.work_plan[plan_index]]
+                if time_left - (task.cost / self.efficiency) >= 0:
+                    print(f"Task {task.id}: priority {task.priority}, cost {task.cost} minutes")
+                    time_left -= task.cost / self.efficiency
+                    plan_index += 1
+                else:
+                    break
 
 

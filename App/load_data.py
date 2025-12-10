@@ -17,6 +17,7 @@ priority_map = {
     "Trivial": 8,
 }
 
+
 def load_tasks_from_file(file_path: str) -> List[Task]:
     # Get Tasks from the CSV file taken from the Apache JIRA dataset
     if not file_path:
@@ -28,12 +29,12 @@ def load_tasks_from_file(file_path: str) -> List[Task]:
             issue_key = (line.get("Issue key") or "").strip()
             priority = priority_map.get(line.get("Priority", ""), 4)
             time_spent = float((line.get("Time Spent") or "").strip())
-            hours_spent = time_spent/3600
-            rows.append((issue_key,hours_spent,priority))
+            minutes_spent = time_spent // 60
+            rows.append((issue_key, minutes_spent, priority))
     tasks = []
     for i in range(len(rows)):
         tasks.append(Task(id=i, name=rows[i][0], cost=rows[i][1], priority=rows[i][2], dependencies=[]))
-    return tasks
+    return sorted(tasks, key=lambda t: t.id)
 
 
 def load_releases_from_file(file_path: str) -> List[Release]:
@@ -49,8 +50,9 @@ def load_releases_from_file(file_path: str) -> List[Release]:
             working_days = int((line.get("working_days") or "").strip())
             if not start or not end or not working_days:
                 continue
-            releases.append(Release( start_day=start, end_date=end, working_days=working_days))
+            releases.append(Release(start_day=start, end_date=end, working_days=working_days))
     return releases
+
 
 def load_programmers_specs_from_file(file_path: str) -> List[Tuple[str, float]]:
     # loads name and efficiency per programmer
@@ -68,9 +70,9 @@ def load_programmers_specs_from_file(file_path: str) -> List[Tuple[str, float]]:
     return prog
 
 
-#TODO: remove debug prints
+# TODO: remove debug prints
 if __name__ == "__main__":
-    tasks = load_tasks_from_file("data/ASF Jira 2025-12-08T08_13_21+0000.csv")
+    tasks = load_tasks_from_file("data/sample_tasks.csv")
     programmers = load_programmers_specs_from_file("data/sample_programmers.csv")
     releases = load_releases_from_file("data/sample_releases.csv")
 
@@ -79,11 +81,8 @@ if __name__ == "__main__":
     print("Total cost:", total_cost)
     print("First task:", tasks[0])
 
-
     print("Loaded programmers:", len(programmers))
     print("First programmer:", programmers[0])
 
-
     print("Loaded releases:", len(releases))
     print("First release:", releases[0])
-
