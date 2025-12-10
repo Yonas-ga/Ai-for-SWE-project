@@ -55,16 +55,12 @@ def hill_climbing(
         fitness -= dep_violations * DEPENDENCY_PENALTY
 
         # penalize unbalanced workloads
-        try:
-            fitness -= stdev(time_lefts)
-            stdev_penalty = stdev(time_lefts)
-        except StatisticsError:
-            stdev_penalty = 0.0
+        fitness -= stdev(time_lefts)
 
         if debug:
             print(
                 "fitness:", round(fitness, 2),
-                "stdev penalty:", round(stdev_penalty, 2),
+                "stdev penalty:", round(stdev(time_lefts), 2),
                 "dep_violations:", dep_violations,
             )
 
