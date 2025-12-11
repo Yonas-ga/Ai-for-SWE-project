@@ -1,60 +1,23 @@
 import random
-from statistics import stdev
 from typing import List, Tuple
 
 from App.release import Release
 from App.task import Task
 from App.solution import Solution
+from App.algorithms.fitness_function import fitness_function
 
 
 def genetic(
         tasks: List[Task],
         programmers_specs: List[Tuple[str, float]],
         releases: List[Release],
-        init_strategy="priority_cost",
+        init_strategy="priority_div_cost",
         population_size: int = 100,
         generations: int = 60,
-        crossover_rate: float = 0.7,
-        mutation_rate: float = 0.4,
-        tournament_size: int = 3,
+        crossover_rate: float = 0.6,
+        mutation_rate: float = 0.5,
+        tournament_size: int = 8,
 ) -> Solution:
-    def fitness_function(individual: Solution, debug: bool = False) -> float:
-        fitness = 0
-        time_lefts = []
-        global_task_to_release = {}
-        for prog in individual.programmers:
-            priority_per_release, time_left, overflowing, task_to_release = prog.evaluate_work_plan(tasks, releases)
-            for task_id, i in task_to_release.items():
-                global_task_to_release[task_id]=i
-            if overflowing:
-                fitness -= 10000
-            time_lefts.append(time_left)
-            num_of_releases = len(priority_per_release)
-            for i in range(num_of_releases):
-                fitness += priority_per_release[i] * (2 ** (num_of_releases - i)) # TODO: might need tuning
-                
-        DEPENDENCY_PENALTY = 50
-        dep_violations = 0
-        for t in tasks:
-            t_release = global_task_to_release.get(t.id, None)
-            if t_release is None:
-                continue
-            for child in t.dependencies:
-                child_release = global_task_to_release.get(child.id, None)
-                if child_release is None or child_release > t_release:
-                    dep_violations +=1
-        
-        fitness -= dep_violations*DEPENDENCY_PENALTY
-                    
-
-        if debug:
-            print("fitness without penalty:", fitness, "stdev penalty:", round(stdev(time_lefts)), "dep_violations:", dep_violations)
-
-        # penalize unbalanced workloads
-        fitness -= stdev(time_lefts)  # TODO: might need tuning
-        return fitness
-
-
     def select() -> int:
         selected = random.randrange(0, len(population))
         for _ in range(tournament_size - 1):
@@ -108,17 +71,19 @@ def genetic(
         prog2.work_plan[start2:end2] = segment1
 
         # TODO: safety check, remove later
+        """
         parent_tasks = sorted(population[p1].flatten())
         if sorted(child1.flatten()) != parent_tasks:
             raise ValueError("Child1 lost or duplicated tasks during crossover.")
         if sorted(child2.flatten()) != parent_tasks:
             raise ValueError("Child2 lost or duplicated tasks during crossover.")
+        """
         return child1, child2
 
     def mutate(individual: Solution) -> Solution:
         if random.random() > mutation_rate:
             return individual
-        beckup = individual.clone()
+        # backup = individual.clone()
         if random.random() > 0.5:
             # swap two tasks in a programmer's work plan
             prog = random.choice(individual.programmers)
@@ -130,9 +95,10 @@ def genetic(
             prog1, prog2 = random.sample(individual.programmers, 2)
             task1 = prog1.work_plan.pop(random.randrange(len(prog1.work_plan)))
             prog2.work_plan.insert(random.randrange(len(prog2.work_plan)), task1)
-
-        if sorted(individual.flatten()) != sorted(beckup.flatten()):
+        """
+        if sorted(individual.flatten()) != sorted(backup.flatten()):
             raise ValueError("Child1 lost or duplicated tasks during mutate.")
+        """
         return individual
 
     # Initialize
@@ -144,7 +110,7 @@ def genetic(
     for _ in range(population_size):
         individual = Solution().initialize(programmers_specs, tasks.copy(), init_strategy)
         population.append(individual)
-        fit = fitness_function(individual)
+        fit = fitness_function(individual, tasks, releases)
         fitness.append(fit)
         if fit > best_fitness:
             best_fitness = fit
@@ -164,7 +130,7 @@ def genetic(
         population = new_population
 
         for i in range(population_size):
-            fitness[i] = fitness_function(population[i])
+            fitness[i] = fitness_function(population[i], tasks, releases)
             if fitness[i] > best_fitness:
                 best_fitness = fitness[i]
                 best = population[i].clone()

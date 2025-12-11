@@ -1,71 +1,21 @@
 import random
-from statistics import stdev, StatisticsError
 from typing import List, Tuple
 
 from App.release import Release
 from App.task import Task
 from App.solution import Solution
-
-DEPENDENCY_PENALTY = 500
+from App.algorithms.fitness_function import fitness_function
 
 
 def hill_climbing(
         tasks: List[Task],
         programmers_specs: List[Tuple[str, float]],
         releases: List[Release],
-        init_strategy: str = "priority_cost",
+        init_strategy: str = "priority_div_cost",
         max_iterations: int = 200,
         swap_tries: int = 50,
         move_tries: int = 50,
 ) -> Solution:
-    def fitness_function(individual: Solution, debug: bool = False) -> float:
-        fitness = 0.0
-        time_lefts: List[float] = []
-        global_task_to_release: dict[int, int] = {}
-
-        for prog in individual.programmers:
-            priority_per_release, time_left, overflowing, task_to_release = prog.evaluate_work_plan(tasks, releases)
-
-            # remember release index for each task
-            for task_id, i in task_to_release.items():
-                global_task_to_release[task_id] = i
-
-            if overflowing:
-                fitness -= 10000  # strong penalty for overflow
-
-            time_lefts.append(time_left)
-            num_of_releases = len(priority_per_release)
-
-            # reward priority earlier (discounted by 2^(num_releases - i))
-            for i in range(num_of_releases):
-                fitness += priority_per_release[i] * (2 ** (num_of_releases - i))
-
-        # dependency penalty
-        dep_violations = 0
-        for t in tasks:
-            t_release = global_task_to_release.get(t.id, None)
-            if t_release is None:
-                continue
-            for child in t.dependencies:
-                child_release = global_task_to_release.get(child.id, None)
-                # child must be in same or earlier release
-                if child_release is None or child_release > t_release:
-                    dep_violations += 1
-
-        fitness -= dep_violations * DEPENDENCY_PENALTY
-
-        # penalize unbalanced workloads
-        fitness -= stdev(time_lefts)
-
-        if debug:
-            print(
-                "fitness:", round(fitness, 2),
-                "stdev penalty:", round(stdev(time_lefts), 2),
-                "dep_violations:", dep_violations,
-            )
-
-        return fitness
-
     def random_swap_neighbor(individual: Solution) -> Solution:
         neighbour = individual.clone()
         # choose programmer with at least 2 tasks
@@ -101,7 +51,7 @@ def hill_climbing(
 
     # --- Initialization: start from one solution (same as GA init) ---
     current = Solution().initialize(programmers_specs, tasks.copy(), init_strategy)
-    current_fitness = fitness_function(current)
+    current_fitness = fitness_function(current, tasks, releases)
     best = current.clone()
     best_fitness = current_fitness
 
@@ -115,7 +65,7 @@ def hill_climbing(
         # 1) Try swap neighbours
         for _ in range(swap_tries):
             neighbour = random_swap_neighbor(current)
-            fit = fitness_function(neighbour)
+            fit = fitness_function(neighbour, tasks, releases)
             if fit > best_neighbor_fitness:
                 best_neighbor_fitness = fit
                 best_neighbor = neighbour
@@ -123,7 +73,7 @@ def hill_climbing(
         # 2) Try move neighbours
         for _ in range(move_tries):
             neighbour = random_move_neighbor(current)
-            fit = fitness_function(neighbour)
+            fit = fitness_function(neighbour, tasks, releases)
             if fit > best_neighbor_fitness:
                 best_neighbor_fitness = fit
                 best_neighbor = neighbour
