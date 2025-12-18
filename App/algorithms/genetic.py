@@ -13,7 +13,7 @@ def genetic(
         releases: List[Release],
         init_strategy="random",
         population_size: int = 150,
-        generations: int = 150,
+        generations: int = 80,
         crossover_rate: float = 0.6,
         mutation_rate: float = 0.5,
         tournament_size: int = 15,
@@ -116,13 +116,13 @@ def genetic(
             new_population.append(child2)
         population = new_population
 
-        print_intermediate_result = True
         for i in range(population_size):
             fitness[i] = fitness_function(population[i], tasks, releases)
             if fitness[i] > best_fitness:
                 best_fitness = fitness[i]
                 best = population[i].clone()
-                if print_intermediate_result:
-                    print(f"Generation: {gen}, new best fitness: {round(best_fitness, 2)}")
-                    print_intermediate_result = False
+
+        if  gen % 10 == 0:
+            print(f"Generation: {gen}, best fitness: {round(best_fitness, 2)}")
+
     return best

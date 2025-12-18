@@ -23,15 +23,6 @@ class Programmer:
     def add_task(self, task_id: int) -> None:
         self.work_plan.append(task_id)
 
-    def add_task_at(self, index: int, task_id: int) -> None:
-        self.work_plan.insert(index, task_id)
-
-    def get_task_at(self, index: int) -> int:
-        if index < len(self.work_plan):
-            return self.work_plan[index]
-        else:
-            return self.work_plan[-1]
-
     def evaluate_work_plan(self, tasks, releases) -> tuple[List[int], float, bool, List[int]]:
         priority_per_release = []
         time_left = 0.0

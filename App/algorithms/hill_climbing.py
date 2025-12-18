@@ -80,12 +80,11 @@ def hill_climbing(
                 best = current.clone()
                 best_fitness = current_fitness
 
-            print(f"HC iter {it}: fitness = {round(current_fitness, 2)}")
+            if  it % 10 == 0:
+                print(f"Iteration: {it}, fitness: {round(best_fitness, 2)}")
         else:
             print(f"HC stopped at iter {it}: local optimum fitness = {round(current_fitness, 2)}")
             break
 
-    for t in best.programmers:
-        t.print_work_plan(tasks, releases)
-    print("HC best fitness:", round(best_fitness, 2))
+
     return best
