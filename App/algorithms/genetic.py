@@ -11,12 +11,12 @@ def genetic(
         tasks: List[Task],
         programmers_specs: List[Tuple[str, float]],
         releases: List[Release],
-        init_strategy="priority_div_cost",
-        population_size: int = 100,
-        generations: int = 60,
+        init_strategy="random",
+        population_size: int = 150,
+        generations: int = 150,
         crossover_rate: float = 0.6,
         mutation_rate: float = 0.5,
-        tournament_size: int = 8,
+        tournament_size: int = 15,
 ) -> Solution:
     def select() -> int:
         selected = random.randrange(0, len(population))

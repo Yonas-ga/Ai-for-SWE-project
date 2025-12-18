@@ -3,7 +3,7 @@ import argparse
 from load_data import *
 from algorithms.genetic import genetic
 from algorithms.hill_climbing import hill_climbing
-
+from algorithms.greedy import greedy
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -24,6 +24,8 @@ if __name__ == '__main__':
             #genetic(tasks[:50], programmers[:4], releases[:3])
         case 'hill_climbing':
             hill_climbing(tasks, programmers, releases)
+        case 'greedy':
+            greedy(tasks, programmers, releases)
         case _:
             raise ValueError(f'Unknown algorithm {args.algorithm}')
 

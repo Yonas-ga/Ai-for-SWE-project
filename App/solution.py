@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from App.programmer import Programmer
-from App.task import Task
+from App.task import Task, MAX_PRIORITY_PLUS_ONE
 
 
 @dataclass
@@ -16,7 +16,6 @@ class Solution:
                    init_strategy="random") -> Solution:
         self.programmers = [Programmer(name=name, efficiency=efficiency) for name, efficiency in programmer_specs]
 
-        #TODO: maybe try more strategies for initialization
         match init_strategy:
             case "empty":
                 return self
@@ -25,7 +24,7 @@ class Solution:
             case "priority_cost":
                 tasks = sorted(tasks, key=lambda t: (-t.priority, t.cost))
             case "priority_div_cost":
-                tasks = sorted(tasks, key=lambda t: (6 - t.priority / t.cost))  # TODO: check if woks as intended
+                tasks = sorted(tasks, key=lambda t: ((MAX_PRIORITY_PLUS_ONE - t.priority) / t.cost))
             case _:
                 raise ValueError(f"Unknown initialization strategy: {init_strategy}")
 

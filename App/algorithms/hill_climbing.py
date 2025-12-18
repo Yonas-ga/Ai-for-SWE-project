@@ -18,7 +18,6 @@ def hill_climbing(
 ) -> Solution:
     def random_swap_neighbor(individual: Solution) -> Solution:
         neighbour = individual.clone()
-        # choose programmer with at least 2 tasks
         candidates = [p for p in neighbour.programmers if len(p.work_plan) >= 2]
         if not candidates:
             return neighbour
@@ -26,21 +25,15 @@ def hill_climbing(
         idx1 = random.randrange(len(prog.work_plan))
         idx2 = random.randrange(len(prog.work_plan))
         prog.work_plan[idx1], prog.work_plan[idx2] = prog.work_plan[idx2], prog.work_plan[idx1]
-
-        # safety: permutation must stay the same
-        if sorted(neighbour.flatten()) != sorted(individual.flatten()):
-            raise ValueError("Neighbour (swap) lost or duplicated tasks.")
         return neighbour
 
     def random_move_neighbor(individual: Solution) -> Solution:
         neighbour = individual.clone()
-        # choose source programmer with at least 1 task
         src_candidates = [p for p in neighbour.programmers if len(p.work_plan) >= 1]
         if len(src_candidates) < 1 or len(neighbour.programmers) < 2:
             return neighbour
 
         prog1 = random.choice(src_candidates)
-        # destination can be any other programmer
         prog2 = random.choice([p for p in neighbour.programmers if p is not prog1])
 
         task_idx = random.randrange(len(prog1.work_plan))
@@ -49,7 +42,7 @@ def hill_climbing(
         prog2.work_plan.insert(insert_idx, task_id)
         return neighbour
 
-    # --- Initialization: start from one solution (same as GA init) ---
+    # Initialization
     current = Solution().initialize(programmers_specs, tasks.copy(), init_strategy)
     current_fitness = fitness_function(current, tasks, releases)
     best = current.clone()
@@ -57,12 +50,12 @@ def hill_climbing(
 
     print("HC initial fitness:", round(best_fitness, 2))
 
-    # --- Hill climbing loop ---
+    # Hill climbing
     for it in range(max_iterations):
         best_neighbor = None
         best_neighbor_fitness = current_fitness
 
-        # 1) Try swap neighbours
+        # Try swaping tasks inside programmers work plans
         for _ in range(swap_tries):
             neighbour = random_swap_neighbor(current)
             fit = fitness_function(neighbour, tasks, releases)
@@ -70,7 +63,7 @@ def hill_climbing(
                 best_neighbor_fitness = fit
                 best_neighbor = neighbour
 
-        # 2) Try move neighbours
+        # Try moving tasks between programmers
         for _ in range(move_tries):
             neighbour = random_move_neighbor(current)
             fit = fitness_function(neighbour, tasks, releases)
@@ -89,7 +82,6 @@ def hill_climbing(
 
             print(f"HC iter {it}: fitness = {round(current_fitness, 2)}")
         else:
-            # no improving neighbour → local optimum
             print(f"HC stopped at iter {it}: local optimum fitness = {round(current_fitness, 2)}")
             break
 
