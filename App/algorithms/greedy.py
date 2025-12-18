@@ -1,9 +1,39 @@
-from typing import List, Tuple
+from typing import Tuple, List
 
 from App.release import Release
-from App.task import Task
 from App.solution import Solution
 from App.programmer import PROGRAMMING_HOURS_IN_WORK_DAY
+from App.task import Task
+
+
+def fix_dependencies(tasks: List[Task]) -> List[Task]:
+    """
+    Reorder tasks so that each task appears after its dependencies,
+    using repeated swaps until stable.
+    """
+    max_iterations = len(tasks) * len(tasks)
+    for _ in range(max_iterations):
+        changed = False
+        task_index = {task.id: i for i, task in enumerate(tasks)}
+
+        for i, task in enumerate(tasks):
+            for dep in task.dependencies:
+                dep_id = dep.id
+                if dep_id not in task_index:
+                    continue
+                dep_index = task_index[dep_id]
+
+                if dep_index > i:
+                    tasks[i], tasks[dep_index] = tasks[dep_index], tasks[i]
+                    changed = True
+                    break
+            if changed:
+                break
+        if not changed:
+            break
+
+    return tasks
+
 
 def greedy(
         tasks: List[Task],
@@ -11,13 +41,11 @@ def greedy(
         releases: List[Release]
 ) -> Solution:
     solution = Solution().initialize(programmers_specs, [], "empty")
-
-    # Already assigned task hours
     programmer_hours = [0.0] * len(programmers_specs)
     total_capacity_minutes = sum(r.working_days * PROGRAMMING_HOURS_IN_WORK_DAY * 60 for r in releases)
 
-    # 1 Priority, 2 Cost
     sorted_tasks = sorted(tasks, key=lambda t: (t.priority, t.cost))
+    sorted_tasks = fix_dependencies(sorted_tasks)
 
     for task in sorted_tasks:
         best_programmer_id = -1
@@ -34,7 +62,7 @@ def greedy(
         # check if task is done by last planned release, else drop task
         if earliest_finish_time <= total_capacity_minutes:
             chosen_prog = solution.programmers[best_programmer_id]
-            
+
             chosen_prog.add_task(task.id)
             programmer_hours[best_programmer_id] += (task.cost / chosen_prog.efficiency)
 
