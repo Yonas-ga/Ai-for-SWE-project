@@ -22,7 +22,7 @@ def fitness_function(individual: Solution, tasks: List[Task], releases: List[Rel
         time_lefts.append(time_left)
         num_of_releases = len(priority_per_release)
         for i in range(num_of_releases):
-            fitness += priority_per_release[i] * (2 ** (num_of_releases - i))  # TODO: might need tuning
+            fitness += priority_per_release[i] * (2 ** (num_of_releases - i))
 
     dep_violations = 0
     for t in tasks:
@@ -44,5 +44,5 @@ def fitness_function(individual: Solution, tasks: List[Task], releases: List[Rel
         )
 
     # penalize unbalanced workloads
-    fitness -= stdev(time_lefts)  # TODO: might need tuning
+    fitness -= stdev(time_lefts)
     return fitness

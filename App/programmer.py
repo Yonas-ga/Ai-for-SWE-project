@@ -1,9 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
+from task import MAX_PRIORITY
 
 PROGRAMMING_HOURS_IN_WORK_DAY = 6
-MIN_PRIORITY = 9
 
 
 @dataclass
@@ -44,7 +44,7 @@ class Programmer:
                 task = tasks[self.work_plan[plan_index]]
                 if time_left - (task.cost / self.efficiency) >= 0:
                     time_left -= task.cost / self.efficiency
-                    release_priority += MIN_PRIORITY - task.priority
+                    release_priority += MAX_PRIORITY + 1 - task.priority
                     task_to_release[task.id] = i
                     plan_index += 1
                 else:
@@ -62,7 +62,7 @@ class Programmer:
         for release in releases:
             time_left += release.working_days * PROGRAMMING_HOURS_IN_WORK_DAY * 60
             print(f" Release from {release.start_day} to {release.end_date}, "
-                  f"Working mins: {release.working_days* PROGRAMMING_HOURS_IN_WORK_DAY*60}")
+                  f"Working mins: {release.working_days * PROGRAMMING_HOURS_IN_WORK_DAY * 60}")
             while plan_index < len(self.work_plan):
                 task = tasks[self.work_plan[plan_index]]
                 if time_left - (task.cost / self.efficiency) >= 0:
@@ -71,5 +71,3 @@ class Programmer:
                     plan_index += 1
                 else:
                     break
-
-

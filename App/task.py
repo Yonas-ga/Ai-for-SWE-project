@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-MAX_PRIORITY_PLUS_ONE = 9
+MAX_PRIORITY = 9
 
 @dataclass(frozen=True) # immutable class for batter performance
 class Task:

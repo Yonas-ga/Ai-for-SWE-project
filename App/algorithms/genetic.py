@@ -69,15 +69,6 @@ def genetic(
         # finally, swap the segments
         prog1.work_plan[start1:end1] = segment2
         prog2.work_plan[start2:end2] = segment1
-
-        # TODO: safety check, remove later
-        """
-        parent_tasks = sorted(population[p1].flatten())
-        if sorted(child1.flatten()) != parent_tasks:
-            raise ValueError("Child1 lost or duplicated tasks during crossover.")
-        if sorted(child2.flatten()) != parent_tasks:
-            raise ValueError("Child2 lost or duplicated tasks during crossover.")
-        """
         return child1, child2
 
     def mutate(individual: Solution) -> Solution:
@@ -95,10 +86,6 @@ def genetic(
             prog1, prog2 = random.sample(individual.programmers, 2)
             task1 = prog1.work_plan.pop(random.randrange(len(prog1.work_plan)))
             prog2.work_plan.insert(random.randrange(len(prog2.work_plan)), task1)
-        """
-        if sorted(individual.flatten()) != sorted(backup.flatten()):
-            raise ValueError("Child1 lost or duplicated tasks during mutate.")
-        """
         return individual
 
     # Initialize
@@ -129,18 +116,13 @@ def genetic(
             new_population.append(child2)
         population = new_population
 
+        print_intermediate_result = True
         for i in range(population_size):
             fitness[i] = fitness_function(population[i], tasks, releases)
             if fitness[i] > best_fitness:
                 best_fitness = fitness[i]
                 best = population[i].clone()
-                # DEBUG
-                print(gen, "fitness:", round(best_fitness,2))
-
-    # DEBUG
-    for t in best.programmers:
-        t.print_work_plan(tasks, releases)
-
-    # fitness_function(best, True)
-    print(round(best_fitness,2))
+                if print_intermediate_result:
+                    print(f"Generation: {gen}, new best fitness: {round(best_fitness, 2)}")
+                    print_intermediate_result = False
     return best

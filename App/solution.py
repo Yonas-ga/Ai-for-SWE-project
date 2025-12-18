@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from App.programmer import Programmer
-from App.task import Task, MAX_PRIORITY_PLUS_ONE
+from App.task import Task, MAX_PRIORITY
 
 
 @dataclass
@@ -22,9 +22,9 @@ class Solution:
             case "random":
                 random.shuffle(tasks)
             case "priority_cost":
-                tasks = sorted(tasks, key=lambda t: (-t.priority, t.cost))
+                tasks = sorted(tasks, key=lambda t: (t.priority, t.cost))
             case "priority_div_cost":
-                tasks = sorted(tasks, key=lambda t: ((MAX_PRIORITY_PLUS_ONE - t.priority) / t.cost))
+                tasks = sorted(tasks, key=lambda t: ((MAX_PRIORITY + 1 - t.priority) / t.cost))
             case _:
                 raise ValueError(f"Unknown initialization strategy: {init_strategy}")
 
@@ -50,3 +50,6 @@ class Solution:
             flat.extend(p.work_plan)
         return flat
 
+    def print_solution(self, tasks: List[Task], releases: List) -> None:
+        for prog in self.programmers:
+            prog.print_work_plan(tasks, releases)
