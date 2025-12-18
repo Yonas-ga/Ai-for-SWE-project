@@ -15,7 +15,6 @@ def fix_dependencies(tasks: List[Task]) -> List[Task]:
     for _ in range(max_iterations):
         changed = False
         task_index = {task.id: i for i, task in enumerate(tasks)}
-
         for i, task in enumerate(tasks):
             for dep in task.dependencies:
                 dep_id = dep.id

@@ -71,7 +71,6 @@ def hill_climbing(
                 best_neighbor_fitness = fit
                 best_neighbor = neighbour
 
-        # 3) Decide whether to move to best neighbour
         if best_neighbor is not None and best_neighbor_fitness > current_fitness:
             current = best_neighbor
             current_fitness = best_neighbor_fitness
@@ -85,6 +84,5 @@ def hill_climbing(
         else:
             print(f"HC stopped at iter {it}: local optimum fitness = {round(current_fitness, 2)}")
             break
-
 
     return best
