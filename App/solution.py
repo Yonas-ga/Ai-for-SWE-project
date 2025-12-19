@@ -4,8 +4,8 @@ import random
 from dataclasses import dataclass, field
 from typing import List
 
-from App.programmer import Programmer
-from App.task import Task, MAX_PRIORITY
+from programmer import Programmer
+from task import Task, MAX_PRIORITY
 
 
 @dataclass

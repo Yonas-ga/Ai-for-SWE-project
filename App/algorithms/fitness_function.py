@@ -1,9 +1,9 @@
 from statistics import stdev
 from typing import List
 
-from App.release import Release
-from App.task import Task
-from App.solution import Solution
+from release import Release
+from task import Task
+from solution import Solution
 
 DEPENDENCY_PENALTY = 500
 OVERFLOW_PENALTY = 10000

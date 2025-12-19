@@ -1,10 +1,11 @@
 from typing import List, Tuple
 
-from App.task import Task
-from App.release import Release
+from task import Task
+from release import Release
 
 import csv
 from datetime import datetime
+import math
 
 priority_map = {
     "Blocker": 1,
@@ -29,11 +30,33 @@ def load_tasks_from_file(file_path: str) -> List[Task]:
             issue_key = (line.get("Issue key") or "").strip()
             issue_id = (line.get("Issue id") or "").strip()
             priority = priority_map.get(line.get("Priority", ""), 4)
-            time_spent = float((line.get("Time Spent") or "").strip())
-            minutes_spent = time_spent // 60
+            time_spent = (line.get("Time Spent") or "").strip()
+            if time_spent == "":
+                time_spent = None
+            else:
+                time_spent = int(float(time_spent)//60)
             parent_id = (line.get("Parent id") or "").strip()
             parent_key = (line.get("Inward issue link (Child-Issue)") or "").strip()
-            rows.append((issue_key, minutes_spent, priority, issue_id, parent_id, parent_key))
+            desc_lenght = len((line.get("Summary") or "").strip()) + len((line.get("Description") or "").strip())
+            rows.append([issue_key, time_spent, priority, issue_id, parent_id, parent_key, desc_lenght])
+    #Simulate "Time spent" for data without it
+    Yes_TS = [row for row in rows if row[1] is not None and row[6] > 0]
+    No_TS = [row for row in rows if row[1] is None and row[6] > 0]
+    if No_TS != []:
+        x = [math.log1p(row[6]) for row in Yes_TS]
+        y = [row[1] for row in Yes_TS]
+        x_av = sum(x)/len(x)
+        y_av = sum(y)/len(y)
+        preds = []
+        for row in No_TS:
+            try:
+                preds.append(math.log1p(row[6])/x_av)
+            except:
+                preds.append(0)
+        preds_av = sum(preds)/len(preds)
+        for row, pred in zip(No_TS, preds):
+            row[1] = int(pred*(y_av/preds_av))
+    #Create the tasks        
     tasks = []
     key_to_index = {}
     id_to_index = {}

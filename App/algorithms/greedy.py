@@ -1,9 +1,9 @@
 from typing import Tuple, List
 
-from App.release import Release
-from App.solution import Solution
-from App.programmer import PROGRAMMING_HOURS_IN_WORK_DAY
-from App.task import Task
+from release import Release
+from solution import Solution
+from programmer import PROGRAMMING_HOURS_IN_WORK_DAY
+from task import Task
 
 
 def fix_dependencies(tasks: List[Task]) -> List[Task]:
