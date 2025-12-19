@@ -19,3 +19,4 @@ class Task:
     cost: int
     priority: int
     dependencies: List[Task]
+    release : int = 0

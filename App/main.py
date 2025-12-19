@@ -5,6 +5,7 @@ from algorithms.genetic import genetic
 from algorithms.hill_climbing import hill_climbing
 from algorithms.greedy import greedy
 from algorithms.fitness_function import fitness_function
+from algorithms.slow_release_ga import call_slow_genetic
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -25,6 +26,8 @@ if __name__ == '__main__':
             solution = hill_climbing(tasks, programmers, releases)
         case 'genetic':
             solution = genetic(tasks, programmers, releases)
+        case 'slow_release_GA':
+            solution = call_slow_genetic(tasks, programmers, releases)
         case _:
             raise ValueError(f'Unknown algorithm {args.algorithm}')
 

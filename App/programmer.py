@@ -19,7 +19,7 @@ class Programmer:
     def add_task(self, task_id: int) -> None:
         self.work_plan.append(task_id)
 
-    def evaluate_work_plan(self, tasks, releases) -> tuple[List[int], float, bool, List[int]]:
+    def evaluate_work_plan(self, tasks, releases, active_ids=None):
         priority_per_release = []
         time_left = 0.0
         plan_index = 0
@@ -28,7 +28,11 @@ class Programmer:
             release_priority = 0
             time_left += release.working_days * PROGRAMMING_HOURS_IN_WORK_DAY * 60
             while plan_index < len(self.work_plan):
-                task = tasks[self.work_plan[plan_index]]
+                task_id = self.work_plan[plan_index]
+                if active_ids != None and task_id not in active_ids:
+                    plan_index += 1
+                    continue
+                task = tasks[task_id]
                 if time_left - (task.cost / self.efficiency) >= 0:
                     time_left -= task.cost / self.efficiency
                     release_priority += MAX_PRIORITY + 1 - task.priority

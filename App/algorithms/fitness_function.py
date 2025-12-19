@@ -9,13 +9,13 @@ DEPENDENCY_PENALTY = 500
 OVERFLOW_PENALTY = 10000
 IMBALANCE_WEIGHT = 20  
 
-def fitness_function(individual: Solution, tasks: List[Task], releases: List[Release], debug: bool = False) -> float:
+def fitness_function(individual: Solution, tasks: List[Task], releases: List[Release], debug: bool = False, active_ids=None) -> float:
     fitness = 0
     time_lefts = []
     assigned_times = []
     global_task_to_release = {}
     for prog in individual.programmers:
-        priority_per_release, time_left, overflowing, task_to_release = prog.evaluate_work_plan(tasks, releases)
+        priority_per_release, time_left, overflowing, task_to_release = prog.evaluate_work_plan(tasks, releases, active_ids)
         for task_id, i in task_to_release.items():
             global_task_to_release[task_id] = i
         if overflowing:
@@ -39,14 +39,11 @@ def fitness_function(individual: Solution, tasks: List[Task], releases: List[Rel
     fitness -= dep_violations * DEPENDENCY_PENALTY
     
     stdev_assigned = stdev(assigned_times) 
-    mean_assigned = sum(assigned_times) / len(assigned_times)
-    imbalance_ratio = (max(assigned_times) / mean_assigned) 
 
     if debug:
         print(
             "fitness:", round(fitness, 2),
             "stdev_assigned:", round(stdev_assigned, 2),
-            "imbalance_ratio:", round(imbalance_ratio, 2),
             "dep_violations:", dep_violations,
         )
 
