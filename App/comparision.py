@@ -22,7 +22,7 @@ def compare_release_plans(solution: Solution, tasks: List[Task], releases: List[
     for programmer in solution.programmers:
         for task_id in programmer.work_plan:
             task = tasks[task_id]
-            sum_priorities += (10 - task.priority)  # Higher score for higher priority
+            sum_priorities += (10 - task.priority) 
             if task.priority <= 3:
                 high_priority_count += 1
             total_task_count += 1
@@ -36,7 +36,7 @@ def compare_release_plans(solution: Solution, tasks: List[Task], releases: List[
         hours = 0.0
         for task_id in programmer.work_plan:
             task = tasks[task_id]
-            hours += task.cost / programmer.efficiency / 60  # Convert minutes to hours
+            hours += task.cost / programmer.efficiency / 60 
         programmer_hours.append(hours)
     
     total_work_hours = sum(programmer_hours)
@@ -86,8 +86,6 @@ def print_comparison(metrics: dict, algorithm_name: str):
         print(f"  {prog_name:15}: {hours} hours")
     print(f"{'='*60}\n")
 
-import argparse
-
 from load_data import *
 from algorithms.genetic import genetic
 from algorithms.hill_climbing import hill_climbing
@@ -96,25 +94,13 @@ from algorithms.fitness_function import fitness_function
 from algorithms.slow_release_ga import call_slow_genetic
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-a', '--algorithm', type=str, required=False, default=None) # "hill_climbing", "greedy", "genetic", "slow_release_GA", or None for all
-    parser.add_argument('-t', '--tasks_file', type=str, required=False, default='data/ASF Jira 2025-12-08T08_13_21+0000.csv')
-    parser.add_argument('-r', '--releases_file', type=str, required=False, default='data/sample_releases.csv')
-    parser.add_argument('-p', '--programmers_file', type=str, required=False, default='data/sample_programmers.csv')
-
-    args = parser.parse_args()
-
-    tasks = load_tasks_from_file(args.tasks_file)
-    programmers = load_programmers_specs_from_file(args.programmers_file)
-    releases = load_releases_from_file(args.releases_file)
+    tasks = load_tasks_from_file('data/ASF Jira 2025-12-08T08_13_21+0000.csv')
+    programmers = load_programmers_specs_from_file('data/sample_programmers.csv')
+    releases = load_releases_from_file('data/sample_releases.csv')
     
-    # Determine which algorithms to run
-    if args.algorithm is None:
-        algorithms_to_run = ['greedy', 'hill_climbing', 'genetic', 'slow_release_GA']
-    else:
-        algorithms_to_run = [args.algorithm]
+    algorithms_to_run = ['greedy', 'hill_climbing', 'genetic', 'slow_release_GA']
     
-    results = {}  # Store results for comparison
+    results = {}  
     
     # Run all selected algorithms
     for algo_name in algorithms_to_run:
@@ -157,18 +143,22 @@ if __name__ == '__main__':
     
     # Print summary comparison if multiple algorithms were run
     if len(algorithms_to_run) > 1:
-        print(f"\n{'='*80}")
+        print(f"\n{'='*140}")
         print("SUMMARY COMPARISON - ALL ALGORITHMS")
-        print(f"{'='*80}\n")
-        print(f"{'Algorithm':<20} {'Fitness':<12} {'Sum Priorities':<16} {'High Priority %':<18} {'Workload Std Dev':<18}")
-        print(f"{'-'*80}")
+        print(f"{'='*140}\n")
+        
+        header = f"{'Algorithm':<15} {'Fitness':<10} {'Sum Prio':<10} {'Hi Prio %':<10} {'Tot Hours':<10} {'Max Hours':<10} {'Var':<8} {'StdDev':<8} {'Est Days':<8}"
+        print(header)
+        print(f"{'-'*140}")
+        
         for algo_name in algorithms_to_run:
             if algo_name in results:
-                metrics = results[algo_name]
-                print(f"{algo_name:<20} {metrics['fitness']:<12} {metrics['sum_priorities']:<16} {metrics['high_priority_ratio']:<18} {metrics['workload_std_dev']:<18}")
-        print(f"{'='*80}\n")
+                m = results[algo_name] 
+                
+                row = f"{algo_name:<15} {m['fitness']:<10} {m['sum_priorities']:<10} {m['high_priority_ratio']:<10} {m['total_work_hours']:<10} {m['max_programmer_hours']:<10} {m['workload_variance']:<8} {m['workload_std_dev']:<8} {m['estimated_release_days']:<8}"
+                print(row)
+        print(f"{'='*140}\n")
         
-        # Find and highlight the best algorithm
         if results:
             best_algo = max(results.keys(), key=lambda x: results[x]['fitness'])
-            print(f"🏆 Best Algorithm: {best_algo} with fitness score: {results[best_algo]['fitness']}")
+            print(f"Best Algorithm based on Fitness: {best_algo}")
